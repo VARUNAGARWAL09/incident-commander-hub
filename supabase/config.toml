@@ -1,0 +1,10 @@
+project_id = "blatyzkowyxpqrrmemip"
+
+[functions.enrich-indicator]
+verify_jwt = false
+
+[functions.text-to-speech]
+verify_jwt = false
+
+[functions.analyze-threat]
+verify_jwt = false
