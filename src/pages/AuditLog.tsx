@@ -93,7 +93,7 @@ const AuditLog = () => {
         .from('audit_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(50000);
 
       if (entityFilter !== 'all') {
         query = query.eq('entity_type', entityFilter);
@@ -129,7 +129,7 @@ const AuditLog = () => {
           table: 'audit_logs',
         },
         (payload) => {
-          setLogs((prev) => [payload.new as AuditLogEntry, ...prev.slice(0, 199)]);
+          setLogs((prev) => [payload.new as AuditLogEntry, ...prev]);
         }
       )
       .subscribe();

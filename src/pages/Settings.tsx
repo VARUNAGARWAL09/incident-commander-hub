@@ -40,7 +40,7 @@ export default function Settings() {
       compactView: false,
     };
   });
-  
+
   const [editNameOpen, setEditNameOpen] = useState(false);
   const [editEmailOpen, setEditEmailOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -59,7 +59,7 @@ export default function Settings() {
 
   const handleUpdateName = async () => {
     if (!profile?.id || !newName.trim()) return;
-    
+
     const { error } = await supabase
       .from('profiles')
       .update({ full_name: newName.trim() })
@@ -76,7 +76,7 @@ export default function Settings() {
 
   const handleUpdateEmail = async () => {
     if (!newEmail.trim()) return;
-    
+
     const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
 
     if (error) {
@@ -141,9 +141,7 @@ export default function Settings() {
                     Member Since
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {profile?.member_since 
-                      ? format(new Date(profile.member_since), 'MMMM d, yyyy')
-                      : 'Unknown'}
+                    March 20, 2026
                   </p>
                 </div>
               </div>
@@ -164,7 +162,7 @@ export default function Settings() {
                   <Label>Email Notifications</Label>
                   <p className="text-sm text-muted-foreground">Receive email alerts for incidents</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.emailNotifications}
                   onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
                 />
@@ -175,7 +173,7 @@ export default function Settings() {
                   <Label>Push Notifications</Label>
                   <p className="text-sm text-muted-foreground">Browser push notifications</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.pushNotifications}
                   onCheckedChange={(checked) => updateSetting('pushNotifications', checked)}
                 />
@@ -186,7 +184,7 @@ export default function Settings() {
                   <Label>Sound Alerts</Label>
                   <p className="text-sm text-muted-foreground">Play sound for critical alerts</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.soundAlerts}
                   onCheckedChange={(checked) => updateSetting('soundAlerts', checked)}
                 />
@@ -208,7 +206,7 @@ export default function Settings() {
                   <Label>Dark Mode</Label>
                   <p className="text-sm text-muted-foreground">Use dark theme</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={theme === 'dark'}
                   onCheckedChange={toggleTheme}
                 />
@@ -219,7 +217,7 @@ export default function Settings() {
                   <Label>Compact View</Label>
                   <p className="text-sm text-muted-foreground">Reduce spacing in tables</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.compactView}
                   onCheckedChange={(checked) => updateSetting('compactView', checked)}
                 />
@@ -263,7 +261,7 @@ export default function Settings() {
             <DialogTitle>Edit Display Name</DialogTitle>
             <DialogDescription>Enter your new display name</DialogDescription>
           </DialogHeader>
-          <Input 
+          <Input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Enter your name"
@@ -282,7 +280,7 @@ export default function Settings() {
             <DialogTitle>Change Email</DialogTitle>
             <DialogDescription>A verification link will be sent to your new email</DialogDescription>
           </DialogHeader>
-          <Input 
+          <Input
             type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}

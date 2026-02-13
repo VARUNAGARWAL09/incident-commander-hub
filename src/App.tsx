@@ -24,6 +24,7 @@ import AuditLog from "./pages/AuditLog";
 import Playbooks from "./pages/Playbooks";
 import MitreMapping from "./pages/MitreMapping";
 import LogIngestion from "./pages/LogIngestion";
+import Compliance from "./pages/Compliance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
                       <Route path="/playbooks" element={<ProtectedRoute><Playbooks /></ProtectedRoute>} />
                       <Route path="/mitre" element={<ProtectedRoute><MitreMapping /></ProtectedRoute>} />
                       <Route path="/log-ingestion" element={<ProtectedRoute><LogIngestion /></ProtectedRoute>} />
+                      <Route path="/compliance" element={<ProtectedRoute><Compliance /></ProtectedRoute>} />
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>

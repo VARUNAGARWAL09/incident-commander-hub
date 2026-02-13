@@ -22,9 +22,10 @@ const Card = ({ children, className = "" }: { children: ReactNode, className?: s
 interface AttackTimelineProps {
     incidentId: string;
     alerts: any[]; // Accept any alert type
+    severity?: string;
 }
 
-export function AttackTimeline({ incidentId, alerts }: AttackTimelineProps) {
+export function AttackTimeline({ incidentId, alerts, severity }: AttackTimelineProps) {
     // Helper to get normalized data
     const getAlertTime = (alert: any) => {
         const val = alert.created_at || alert.createdAt;
@@ -39,8 +40,12 @@ export function AttackTimeline({ incidentId, alerts }: AttackTimelineProps) {
         return val || {};
     };
 
+    // Generate mock alerts logic removed (handled in parent Modal)
+    let displayAlerts = [...alerts];
+
+
     // Sort alerts chronologically
-    const sortedAlerts = [...alerts].sort((a, b) =>
+    const sortedAlerts = [...displayAlerts].sort((a, b) =>
         getAlertTime(a) - getAlertTime(b)
     );
 

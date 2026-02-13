@@ -29,6 +29,7 @@ import { useIncidents, type Incident, type IncidentStatus } from '@/context/Inci
 import { useSimulation } from '@/context/SimulationContext';
 import { useToast } from '@/hooks/use-toast';
 import { IncidentReportDialog } from '@/components/reports/IncidentReportDialog';
+import { IncidentDetailModal } from '@/components/incident/IncidentDetailModal';
 import { AttackTimeline } from '@/components/incidents/AttackTimeline';
 import { SLAIndicator } from '@/components/sla/SLAIndicator';
 
@@ -122,37 +123,14 @@ export function IncidentRow({ incident, onClick, index = 0, viewMode = 'list' }:
           </div>
         </motion.div>
 
-        {/* Details Dialog */}
-        <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle className="font-mono flex items-center gap-3">
-                <span className="text-primary">{incident.case_number}</span>
-                <SeverityBadge severity={incident.severity} />
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-lg">{incident.title}</h3>
-                <p className="text-muted-foreground mt-1">{incident.description || 'No description provided.'}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <StatusBadge status={incident.status} />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Created</p>
-                  <p className="text-sm font-mono">{new Date(incident.created_at).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button onClick={() => { setDetailsOpen(false); setEditingStatus(true); }}>Change Status</Button>
-                <Button variant="outline" onClick={() => setDetailsOpen(false)}>Close</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+
+        {/* Details Modal */}
+        <IncidentDetailModal
+          incident={incident}
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+        />
+
 
         {/* Edit Status Dialog */}
         <Dialog open={editingStatus} onOpenChange={setEditingStatus}>
@@ -286,84 +264,12 @@ export function IncidentRow({ incident, onClick, index = 0, viewMode = 'list' }:
         <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary hidden sm:block shrink-0" />
       </motion.div>
 
-      {/* Details Dialog */}
-      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="font-mono flex items-center gap-3">
-              <span className="text-primary">{incident.case_number}</span>
-              <SeverityBadge severity={incident.severity} />
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg">{incident.title}</h3>
-              <p className="text-muted-foreground mt-1">{incident.description || 'No description provided.'}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <StatusBadge status={incident.status} />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Created</p>
-                <p className="text-sm font-mono">{new Date(incident.created_at).toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Alerts</p>
-                <p className="text-sm font-semibold">{incident.alert_count}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Evidence</p>
-                <p className="text-sm font-semibold">{incident.evidence_count}</p>
-              </div>
-            </div>
-
-            {incident.tags.length > 0 && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Tags</p>
-                <div className="flex flex-wrap gap-2">
-                  {incident.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-wrap gap-2 pt-4">
-              <Button onClick={() => { setDetailsOpen(false); setEditingStatus(true); }}>
-                Change Status
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setTimelineOpen(true)}
-                disabled={incidentAlerts.length === 0}
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                Attack Timeline
-              </Button>
-              <IncidentReportDialog
-                incident={incident}
-                trigger={
-                  <Button variant="outline" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Generate Report
-                  </Button>
-                }
-              />
-              <Button variant="ghost" onClick={() => setDetailsOpen(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Details Modal */}
+      <IncidentDetailModal
+        incident={incident}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
 
       {/* Attack Timeline Dialog */}
       <Dialog open={timelineOpen} onOpenChange={setTimelineOpen}>

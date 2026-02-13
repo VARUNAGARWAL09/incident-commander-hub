@@ -43,7 +43,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
         .from('activities')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .range(0, 10000);
 
       if (error) throw error;
       setActivities((data as Activity[]) || []);
@@ -72,7 +72,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
             const newActivity = payload.new as Activity;
             setActivities((prev) => {
               if (prev.some(a => a.id === newActivity.id)) return prev;
-              return [newActivity, ...prev.slice(0, 99)];
+              return [newActivity, ...prev];
             });
           }
         }

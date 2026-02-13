@@ -48,6 +48,7 @@ export function Sidebar() {
   ];
 
   const bottomNavItems = [
+    { label: 'Compliance', href: '/compliance', icon: Shield },
     { label: 'Activity Log', href: '/activity', icon: Activity },
     { label: 'Audit Log', href: '/audit-log', icon: ClipboardList },
     { label: 'Documentation', href: '/documentation', icon: FileText },
