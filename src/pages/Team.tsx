@@ -61,6 +61,7 @@ import { AddTeamMemberDialog } from '@/components/team/AddTeamMemberDialog';
 
 const Team = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const { members, loading, refetch } = useTeamMembers();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -77,10 +78,37 @@ const Team = () => {
   const [removingMember, setRemovingMember] = useState<TeamMember | null>(null);
   const [removing, setRemoving] = useState(false);
 
-  const filteredUsers = members.filter(member =>
-    member.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = members.filter(member => {
+    const matchesSearch = member.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  const handleExport = () => {
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Last Active'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredUsers.map(user => [
+        `"${user.full_name}"`,
+        `"${user.email}"`,
+        user.role,
+        user.is_online ? 'Online' : 'Offline',
+        user.last_active ? new Date(user.last_active).toLocaleString() : 'Never'
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'team_members.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: 'Exported', description: 'Team list downloaded successfully' });
+  };
 
   const handleEdit = (member: TeamMember) => {
     setEditingMember(member);
@@ -290,11 +318,31 @@ const Team = () => {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-            </Button>
-            <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant={roleFilter === 'all' ? "outline" : "secondary"} size="sm" className="hidden sm:flex gap-2">
+                  <Filter className="h-4 w-4" />
+                  {roleFilter === 'all' ? 'Filters' : `Role: ${roleFilter}`}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setRoleFilter('all')}>
+                  All Roles
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRoleFilter('admin')}>
+                  Admins
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRoleFilter('analyst')}>
+                  Analysts
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRoleFilter('viewer')}>
+                  Viewers
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="outline" size="sm" className="hidden sm:flex gap-2" onClick={handleExport}>
               <Download className="h-4 w-4" />
               Export
             </Button>
