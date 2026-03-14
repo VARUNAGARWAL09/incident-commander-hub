@@ -58,21 +58,42 @@ export function IncidentsProvider({ children }: { children: ReactNode }) {
   // Fetch incidents on mount
   useEffect(() => {
     const fetchIncidents = async () => {
-      const { data, error } = await supabase
-        .from('incidents')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50000);
+      let allIncidents: Incident[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasError = false;
 
-      if (error) {
-        console.error('Error fetching incidents:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load incidents',
-          variant: 'destructive',
-        });
-      } else {
-        setIncidents(data || []);
+      while (true) {
+        const { data, error } = await supabase
+          .from('incidents')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) {
+          console.error('Error fetching incidents:', error);
+          if (page === 0) {
+            toast({
+              title: 'Error',
+              description: 'Failed to load incidents',
+              variant: 'destructive',
+            });
+          }
+          hasError = true;
+          break;
+        }
+
+        if (data && data.length > 0) {
+          allIncidents = [...allIncidents, ...data];
+          if (data.length < pageSize) break;
+          page++;
+        } else {
+          break;
+        }
+      }
+
+      if (!hasError || allIncidents.length > 0) {
+        setIncidents(allIncidents);
       }
       setLoading(false);
     };

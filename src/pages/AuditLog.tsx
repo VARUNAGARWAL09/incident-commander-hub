@@ -89,23 +89,37 @@ const AuditLog = () => {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('audit_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50000);
+      let allLogs: AuditLogEntry[] = [];
+      let page = 0;
+      const pageSize = 1000;
 
-      if (entityFilter !== 'all') {
-        query = query.eq('entity_type', entityFilter);
+      while (true) {
+        let query = supabase
+          .from('audit_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (entityFilter !== 'all') {
+          query = query.eq('entity_type', entityFilter);
+        }
+
+        if (actionFilter !== 'all') {
+          query = query.eq('action', actionFilter);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          allLogs = [...allLogs, ...(data as AuditLogEntry[])];
+          if (data.length < pageSize) break;
+          page++;
+        } else {
+          break;
+        }
       }
-
-      if (actionFilter !== 'all') {
-        query = query.eq('action', actionFilter);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setLogs((data as AuditLogEntry[]) || []);
+      setLogs(allLogs);
     } catch (e) {
       console.error('Failed to fetch audit logs:', e);
     } finally {

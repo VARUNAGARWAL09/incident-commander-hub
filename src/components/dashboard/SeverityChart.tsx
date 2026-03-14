@@ -2,17 +2,22 @@ import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Incident } from '@/context/IncidentsContext';
 
-interface SeverityChartProps {
-  incidents: Incident[];
+interface SeverityItem {
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 }
 
-export function SeverityChart({ incidents }: SeverityChartProps) {
+interface SeverityChartProps {
+  data: SeverityItem[];
+  title?: string;
+}
+
+export function SeverityChart({ data: items, title = "Incidents by Severity" }: SeverityChartProps) {
   const severityCounts = {
-    critical: incidents.filter(i => i.severity === 'critical').length,
-    high: incidents.filter(i => i.severity === 'high').length,
-    medium: incidents.filter(i => i.severity === 'medium').length,
-    low: incidents.filter(i => i.severity === 'low').length,
-    info: incidents.filter(i => i.severity === 'info').length,
+    critical: items.filter(i => i.severity === 'critical').length,
+    high: items.filter(i => i.severity === 'high').length,
+    medium: items.filter(i => i.severity === 'medium').length,
+    low: items.filter(i => i.severity === 'low').length,
+    info: items.filter(i => i.severity === 'info').length,
   };
 
   const data = [
@@ -31,7 +36,7 @@ export function SeverityChart({ incidents }: SeverityChartProps) {
       className="rounded-xl border bg-card p-5"
     >
       <h3 className="font-mono text-sm font-semibold uppercase tracking-wider mb-4">
-        Incidents by Severity
+        {title}
       </h3>
 
       <div className="flex items-center gap-4">

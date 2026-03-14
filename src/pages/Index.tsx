@@ -36,12 +36,28 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   mockUsers,
 } from '@/data/mockData';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const navigate = useNavigate();
   const { incidents, loading } = useIncidents();
   const { activities } = useActivity();
   const { isRunning, virtualTime, alerts, evidence, startSimulation, stopSimulation, avgResponseTime } = useSimulation();
+  const { user, profile } = useAuth();
+
+  const activeTeamUsers = useMemo(() => {
+    return mockUsers.map(u => {
+      const isCurrentUser = 
+        (profile?.full_name && u.name.toLowerCase() === profile.full_name.toLowerCase()) || 
+        (user?.email && u.email.toLowerCase() === user.email.toLowerCase()) ||
+        (profile?.full_name && profile.full_name.toLowerCase().includes(u.name.split(' ')[0].toLowerCase()));
+        
+      if (isCurrentUser) {
+        return { ...u, lastActive: new Date() };
+      }
+      return u;
+    });
+  }, [user, profile]);
   const [filters, setFilters] = useState<DashboardFilterValues>({
     severity: 'all',
     status: 'all',
@@ -392,7 +408,7 @@ const Index = () => {
             </motion.div>
 
             {/* Team Status */}
-            <TeamStatus users={mockUsers} />
+            <TeamStatus users={activeTeamUsers} />
           </div>
         </div>
 
@@ -404,7 +420,7 @@ const Index = () => {
           </div>
 
           {/* Severity Chart */}
-          <SeverityChart incidents={incidents} />
+          <SeverityChart data={alerts} title="Alerts by Severity" />
         </div>
       </div>
 

@@ -400,13 +400,39 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   // Fetch existing alerts and evidence
   useEffect(() => {
     const fetchData = async () => {
+      const fetchAll = async (tableName: 'alerts' | 'evidence') => {
+        let allData: any[] = [];
+        let page = 0;
+        const pageSize = 1000;
+        while (true) {
+          const { data, error } = await supabase
+            .from(tableName)
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(page * pageSize, (page + 1) * pageSize - 1);
+          
+          if (error) {
+            console.error(`Error fetching ${tableName}:`, error);
+            break;
+          }
+          if (data && data.length > 0) {
+            allData = [...allData, ...data];
+            if (data.length < pageSize) break;
+            page++;
+          } else {
+            break;
+          }
+        }
+        return allData;
+      };
+
       const [alertsRes, evidenceRes] = await Promise.all([
-        supabase.from('alerts').select('*').order('created_at', { ascending: false }).limit(50000),
-        supabase.from('evidence').select('*').order('created_at', { ascending: false }).limit(50000),
+        fetchAll('alerts'),
+        fetchAll('evidence'),
       ]);
 
-      if (alertsRes.data) setAlerts(alertsRes.data as Alert[]);
-      if (evidenceRes.data) setEvidence(evidenceRes.data as Evidence[]);
+      setAlerts(alertsRes as Alert[]);
+      setEvidence(evidenceRes as Evidence[]);
     };
 
     fetchData();
