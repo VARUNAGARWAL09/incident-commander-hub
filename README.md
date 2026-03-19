@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-2.4.0-emerald.svg)](https://github.com/VARUNAGARWAL09/incident-commander-hub)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/react-18.3.1-61dafb.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/typescript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 
 > **A comprehensive Security Operations Center (SOC) platform for real-time threat detection, incident response, and security operations management.**
 
@@ -52,6 +52,13 @@ IRIS.SEC (Incident Response & Intelligence System - Security Operations Center) 
 - Step-by-step execution tracking
 - Progress bars and completion indicators
 - Notes and timestamp logging for each step
+
+### 📥 **Log Ingestion & Analysis**
+- Drag-and-drop log file upload (`.log`, `.txt`) up to 10MB
+- High-speed pattern matching engine with 10 comprehensive security rules
+- Dynamic risk scoring and auto-severity assignment
+- Safe, duplicate-prevented alert generation
+- Detailed processing metrics and visual detection summaries
 
 ### 📄 **Professional PDF Export**
 - Multi-page documentation generation
@@ -225,6 +232,7 @@ src/
 │   ├── Evidence.tsx        # Artifact repository
 │   ├── Playbooks.tsx       # Response playbooks
 │   ├── Team.tsx            # Team management
+│   ├── LogIngestion.tsx    # Raw log upload and processing
 │   ├── Documentation.tsx   # Platform docs
 │   └── ...
 └── App.tsx                 # Main application component
@@ -292,7 +300,7 @@ For questions, issues, or feature requests:
 ---
 
 **Version:** 2.4.0  
-**Last Updated:** February 12, 2026  
+**Last Updated:** March 2026  
 **Status:** Active Development 🚀
 
 Made with ❤️ for the cybersecurity community

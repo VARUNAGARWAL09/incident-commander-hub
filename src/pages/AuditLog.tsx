@@ -79,6 +79,14 @@ const entityIcons: Record<string, React.ReactNode> = {
   sla_config: <Settings className="h-4 w-4" />,
 };
 
+// Remap any removed team member references to Prithviraj
+const remapUserDisplay = (email: string | null): string => {
+  if (!email) return 'System';
+  const lower = email.toLowerCase();
+  if (lower.includes('ronit')) return 'prithvirajdeshmukh.cy22';
+  return email;
+};
+
 const AuditLog = () => {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,7 +165,7 @@ const AuditLog = () => {
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
-      log.user_email?.toLowerCase().includes(search) ||
+      remapUserDisplay(log.user_email).toLowerCase().includes(search) ||
       log.action.toLowerCase().includes(search) ||
       log.entity_name?.toLowerCase().includes(search) ||
       log.entity_id?.toLowerCase().includes(search)
@@ -326,7 +334,7 @@ const AuditLog = () => {
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm truncate max-w-[150px]">
-                              {log.user_email || 'System'}
+                              {remapUserDisplay(log.user_email)}
                             </span>
                           </div>
                         </TableCell>

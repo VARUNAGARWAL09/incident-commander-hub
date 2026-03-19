@@ -349,7 +349,7 @@ export function Header() {
             </div>
             <div className="border-t pt-4">
               <p className="text-xs text-muted-foreground text-center">
-                IRIS.SEC v1.0.0 • Security Operations Platform
+                IRIS.SEC v2.4.0 • Security Operations Platform
               </p>
             </div>
           </div>

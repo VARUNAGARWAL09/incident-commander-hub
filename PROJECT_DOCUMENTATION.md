@@ -167,6 +167,12 @@ Advanced PDF generation system for comprehensive documentation export:
   - Date-stamped filenames
   - Multi-page layout optimization
 
+### H. Log Ingestion & Threat Detection
+- **Log Upload & Validation**: Secure upload interface for `.log` and `.txt` files up to 10MB, featuring automatic file validation and instant previews.
+- **Advanced Detection Engine**: Evaluates raw log data against 10 comprehensive security rules (covering SQLi, XSS, Brute Force, Exfiltration, etc.) using regex pattern matching.
+- **Dynamic Risk Scoring**: Extracts metadata natively (IPs, sizes, times) to assign intelligent risk scores, severity categorizations, and map to MITRE ATT&CK techniques.
+- **Isolated Alert Generation**: Safely produces structured, schema-compliant security alerts within the database via INSERT-only operations. Features 24-hour duplicate suppression and batch processing without disrupting the live simulation context.
+
 ## 5. Page Guide
 
 1.  **Dashboard (`/`)**:
@@ -223,6 +229,11 @@ Advanced PDF generation system for comprehensive documentation export:
     *   Visual indicators show active incidents/alerts count.
     *   Natural language queries for instant insights.
     *   Contextual help and smart suggestions based on current system state.
+
+11. **Log Ingestion (`/log-ingestion`)**:
+    *   Dedicated interface for uploading, previewing, and analyzing raw security logs.
+    *   Displays real-time processing statistics and categorized threat detections.
+    *   Allows analysts to generate system alerts seamlessly based on identified patterns.
 
 ## 6. Installation & Setup
 
@@ -356,6 +367,20 @@ src/
 - Optimized framer-motion configurations across Dashboard, Incidents, Alerts, and Team pages
 - Improved initial render performance
 
+### Log Ingestion Module
+**Date:** February 2026  
+**Impact:** High - Allows custom data onboarding and dynamic threat analysis.
+
+- Developed an entirely isolated module for processing `.log` and `.txt` files independently of the core threat simulation.
+- Features real-time detection across 10 distinct security threat categories with automated risk scoring.
+- Incorporates duplicate prevention mechanisms (24-hour window) and smart batch uploading to generate alerts safely.
+- Built a modern, animated user interface with drag-and-drop file upload, real-time progress indicators, and comprehensive parsed log statistics.
+
+**Technical Implementation:**
+- Components: `/src/pages/LogIngestion.tsx`
+- Services/Utils: `/src/services/LogIngestionService.ts`, `/src/utils/logParser.ts`
+- Uses robust custom type schemas and pure INSERT-only functions to ensure side-effect-free integration.
+
 ## 10. Future Roadmap
 
 **Planned Features:**
@@ -377,6 +402,6 @@ src/
 ---
 
 **Project Version:** 2.4.0  
-**Last Updated:** February 12, 2026  
-**Maintained by:** IRIS.SEC Development Team
+**Last Updated:** March 2026  
+**Maintained by:** Varun Agarwal
 
