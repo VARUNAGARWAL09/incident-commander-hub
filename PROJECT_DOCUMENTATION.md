@@ -95,6 +95,13 @@ The application includes a `SimulationContext` that acts as a mock SIEM (Securit
   - Active incident assignments
   - Quick action buttons (Edit, Remove)
 
+**Current Team Members:**
+| Name | Email | Role | Member Since |
+|---|---|---|---|
+| Varun Agarwal | varunagarwal.cy22 | Analyst | Jan 15, 2024 |
+| Prithviraj Jaysingrao Deshmukh | prithvirajdeshmukh.cy22 | Analyst | Feb 08, 2024 |
+| Yuvraj Kumar | yuvrajkumar.cy22 | Analyst | Mar 10, 2024 |
+
 ### E. IRIS AI Assistant Chatbot
 The platform includes an intelligent conversational assistant providing real-time operational insights:
 
@@ -173,6 +180,35 @@ Advanced PDF generation system for comprehensive documentation export:
 - **Dynamic Risk Scoring**: Extracts metadata natively (IPs, sizes, times) to assign intelligent risk scores, severity categorizations, and map to MITRE ATT&CK techniques.
 - **Isolated Alert Generation**: Safely produces structured, schema-compliant security alerts within the database via INSERT-only operations. Features 24-hour duplicate suppression and batch processing without disrupting the live simulation context.
 
+### I. Compliance Dashboard
+- **Regulatory Framework Coverage**: Real-time compliance status across major frameworks (SOC 2, ISO 27001, NIST CSF, GDPR, HIPAA, PCI DSS).
+- **Control Mapping**: Maps security controls to specific regulatory requirements with pass/fail tracking.
+- **Compliance Scoring**: Automated scoring and gap analysis across all tracked frameworks.
+- **Audit Readiness**: Exportable compliance reports and evidence packages aligned to audit requirements.
+- **Risk Register**: Linked view from compliance gaps to underlying risk items and open incidents.
+
+### J. Intelligence Dashboard
+- **Threat Intelligence Feed**: Aggregated feed of IOCs (Indicators of Compromise) from integrated threat intel sources.
+- **Campaign Tracking**: Identifies and groups related alerts into threat actor campaigns.
+- **Geo-visual Analysis**: Visual map-based representation of attack origins and impacted infrastructure.
+- **IOC Enrichment**: Inline enrichment of IPs, domains, and hashes with reputation scores and context.
+
+### K. Audit Log (Enhanced)
+Full-featured immutable audit trail with the following capabilities:
+
+- **Paginated Fetching**: Loads all records using loop-based pagination (1,000 records per page) to reliably retrieve the full audit history regardless of size.
+- **Real-time Subscription**: Supabase `postgres_changes` listener on the `audit_logs` table automatically prepends new entries without requiring a manual refresh.
+- **Dynamic Filters**: Filter by entity type and action type using dropdowns dynamically populated from the fetched data.
+- **Full-text Search**: Search across user email, action type, entity name, and entity ID fields simultaneously.
+- **User Remapping**: A `remapUserDisplay` function normalises any legacy references (e.g., removed team members) to the current active team so the audit trail appears consistent.
+- **Live Statistics Panel**: Real-time counters showing total entries, incident actions, alert actions, and distinct active users.
+- **Color-coded Action Badges**: Each action type (created, acknowledged, resolved, dismissed, etc.) is rendered with a unique badge color for instant visual scanning.
+
+**Technical Implementation:**
+- Component: `/src/pages/AuditLog.tsx`
+- Data source: Supabase `audit_logs` table (server-side)
+- Realtime channel: `audit-logs-realtime`
+
 ## 5. Page Guide
 
 1.  **Dashboard (`/`)**:
@@ -223,6 +259,7 @@ Advanced PDF generation system for comprehensive documentation export:
 9.  **Audit Log (`/audit-log`)**:
     *   Immutable log of who did what and when (crucial for compliance).
     *   Complete audit trail for incident lifecycle and user actions.
+    *   Paginated data loading, real-time updates, and dynamic filtering.
 
 10. **IRIS AI Assistant** (Accessible from any page):
     *   Floating chatbot button in bottom-right corner.
@@ -234,6 +271,17 @@ Advanced PDF generation system for comprehensive documentation export:
     *   Dedicated interface for uploading, previewing, and analyzing raw security logs.
     *   Displays real-time processing statistics and categorized threat detections.
     *   Allows analysts to generate system alerts seamlessly based on identified patterns.
+
+12. **MITRE ATT&CK (`/mitre`)**:
+    *   Interactive mapping of detected techniques to the MITRE ATT&CK framework matrix.
+    *   Visual heatmap showing tactic and technique coverage.
+
+13. **Compliance (`/compliance`)**:
+    *   Regulatory compliance dashboard covering SOC 2, ISO 27001, NIST CSF, GDPR, HIPAA, and PCI DSS.
+    *   Shows control-level pass/fail status, compliance scores, and audit readiness reports.
+
+14. **Intelligence Dashboard (`/intelligence`)** *(internal page)*:
+    *   Threat intelligence feed with IOC tracking, campaign analysis, and geo-visual attack maps.
 
 ## 6. Installation & Setup
 
@@ -274,20 +322,98 @@ Advanced PDF generation system for comprehensive documentation export:
 ```
 src/
 ├── components/         # Reusable UI components
+│   ├── auth/           # ProtectedRoute and auth guards
+│   ├── common/         # Shared utility components
 │   ├── dashboard/      # Widgets specific to the dashboard
+│   ├── evidence/       # Evidence management components
+│   ├── incident/       # Incident detail components
+│   ├── incidents/      # Incident list/card components
 │   ├── layout/         # MainLayout, Sidebar, Header, AssistantChatbot
+│   ├── reports/        # Report generation components
+│   ├── sla/            # SLA tracking components
+│   ├── team/           # Team member card components
 │   └── ui/             # Shadcn primitives (Button, Card, Dialog, etc.)
 ├── context/            # Global state providers (Incidents, Simulation, Auth)
-├── data/               # Static data (MITRE definitions, threat playbooks)
-├── hooks/              # Custom hooks (use-toast, useAuditLog)
+├── data/               # Static data & mock data (mockData.ts, MITRE definitions)
+├── hooks/              # Custom hooks (useTeamMembers, useAuditLog, useSLA, etc.)
 ├── integrations/       # Third-party service clients (Supabase)
-├── pages/              # Route components (Index, Incidents, Alerts, Team, Documentation)
-└── lib/                # Utilities and helper functions (pdfGenerator.ts, utils.ts)
+├── pages/              # Route components (17 pages total)
+├── services/           # Business logic services (LogIngestionService)
+├── types/              # TypeScript type definitions
+├── utils/              # Utilities (logParser.ts)
+└── lib/                # Helper functions (pdfGenerator.ts, utils.ts)
 ```
 
-## 9. Recent Enhancements (v2.4.0)
+## 9. Mock Data & Team Roster
 
-### AI Assistant Chatbot (IRIS)
+The file `/src/data/mockData.ts` provides the base seed data for the simulation. It currently defines:
+
+- **3 team member users** (see table in Section 4.D above)
+- **6 mock incidents** (INC-2024-001 through INC-2024-006) across all severity levels and statuses
+- **5 mock alerts** linked to incidents
+- **3 mock evidence items** with chain-of-custody records
+- **6 mock timeline events** for INC-2024-001
+- **Dashboard stats** (156 total incidents, 12 open, 3 critical, 14m 32s avg response time)
+
+> **Note:** Ronit Ranjan was fully removed from the codebase. All prior references (alerts, evidence chain-of-custody, timeline events) have been updated to reflect the current active team members. The `AuditLog.tsx` page contains a `remapUserDisplay()` function that maps any legacy database references to `prithvirajdeshmukh.cy22`.
+
+## 10. Custom Hooks Reference
+
+| Hook | File | Purpose |
+|---|---|---|
+| `useTeamMembers` | `hooks/useTeamMembers.ts` | Fetches profiles from Supabase, persists last-active times in `localStorage`, injects Prithviraj as a permanent mock member if absent |
+| `useAuditLog` | `hooks/useAuditLog.ts` | Provides helper for writing structured entries to the `audit_logs` table |
+| `useSLA` | `hooks/useSLA.ts` | Computes SLA breach status per incident based on severity thresholds |
+| `useEvidenceIntegrity` | `hooks/useEvidenceIntegrity.ts` | Validates chain-of-custody integrity for evidence items |
+| `useRiskScoring` | `hooks/useRiskScoring.ts` | Calculates composite risk scores from raw alert attributes |
+| `useVoiceAlert` | `hooks/useVoiceAlert.ts` | Wraps Web Speech API for critical threat audio announcements |
+| `useAudioUnlock` | `hooks/useAudioUnlock.ts` | Handles browser audio unlock requirement on first user interaction |
+
+## 11. Recent Enhancements
+
+### v2.5.0 - Data Integrity & Team Roster Update (March 2026)
+
+#### New Team Member — Prithviraj Jaysingrao Deshmukh
+**Date:** March 2026  
+**Impact:** Medium — Expands team roster and updates all associated mock data
+
+- Added `Prithviraj Jaysingrao Deshmukh` (`prithvirajdeshmukh.cy22`) as a permanent analyst in `mockData.ts` (id: `'2'`, joined Feb 08, 2024).
+- Assigned Prithviraj to active incidents: INC-2024-001 (ransomware), INC-2024-002 (lateral movement), INC-2024-003 (phishing), INC-2024-004 (data exfil), INC-2024-006 (brute force).
+- Prithviraj appears as the acknowledging analyst on alerts ALT-002 (mass file encryption) and ALT-003 (unusual auth pattern).
+- Included in evidence chain-of-custody records (EVD-001 hash verification) and timeline events (TL-003, TL-004b).
+- `useTeamMembers` hook injects Prithviraj as a permanent runtime team member (id: `mock-prithviraj-2024`) even if not present in the Supabase `profiles` table, ensuring consistent display across the Team page without requiring a database write.
+
+#### Ronit Ranjan — Full Removal
+**Date:** March 2026  
+**Impact:** Medium — Data cleanup and audit trail consistency
+
+- All references to "Ronit Ranjan" were removed from `mockData.ts`, incident assignments, alert acknowledgements, and evidence chain-of-custody.
+- `AuditLog.tsx` includes a `remapUserDisplay()` function that transparently maps any historic `ronit*` email references in the live database to `prithvirajdeshmukh.cy22`, maintaining a clean audit log display without modifying production data.
+
+#### Audit Log Enhancements
+**Date:** March 2026  
+**Impact:** High — Reliability and UX improvement for compliance workflows
+
+- **Paginated bulk fetch**: Replaced single-query fetch with a `while(true)` loop fetching 1,000 records per iteration, ensuring no audit entries are silently truncated for large deployments.
+- **Real-time Supabase subscription**: Added `postgres_changes` INSERT listener on `audit_logs` via the `audit-logs-realtime` channel — new entries appear instantly without requiring a page refresh.
+- **User remapping layer**: `remapUserDisplay()` normalises stale email references before rendering.
+- **Dynamic filter dropdowns**: Action type and entity type selects are now populated dynamically from the fetched dataset rather than being hardcoded.
+- **Stats panel**: Added four summary cards (Total Entries, Incident Actions, Alert Actions, Active Users) at the top of the page.
+
+#### useTeamMembers Hook — Persistent Last-Active Tracking
+**Date:** March 2026  
+**Impact:** Medium — Improves team status accuracy across sessions
+
+- Introduced `localStorage`-backed `saveLastActive` / `getLastActive` helpers keyed by user ID.
+- Current user's last-active timestamp is saved on mount and refreshed every 30 seconds via `setInterval` heartbeat.
+- On profile fetch, the current user is immediately marked `is_online: true`; other members reflect their last persisted timestamp.
+- A Supabase `postgres_changes` realtime subscription on the `profiles` table triggers a re-fetch whenever any profile is updated.
+
+---
+
+### v2.4.0 — February 2026
+
+#### AI Assistant Chatbot (IRIS)
 **Date:** February 2026  
 **Impact:** High - Adds intelligent conversational interface for SOC operations
 
@@ -307,7 +433,7 @@ src/
 - Queries actual database fields (case_number, severity, status, created_at, etc.)
 - Real-time data synchronization via Context API
 
-### Team Management Overhaul
+#### Team Management Overhaul
 **Date:** February 2026  
 **Impact:** Medium - Significantly improves team collaboration interface
 
@@ -320,7 +446,7 @@ src/
 - Search and filter capabilities for large teams
 - Enhanced member cards with avatar, status, and quick actions
 
-### Custom Playbook Creation
+#### Custom Playbook Creation
 **Date:** February 2026  
 **Impact:** Medium - Enables dynamic playbook generation
 
@@ -337,7 +463,7 @@ src/
 - State management for custom playbooks array
 - Integration with existing PlaybookCard and PlaybookDetail components
 
-### Professional PDF Documentation Generator
+#### Professional PDF Documentation Generator
 **Date:** February 2026  
 **Impact:** High - Enables high-quality documentation export
 
@@ -358,7 +484,7 @@ src/
 - Automatic page break detection
 - Integration with Documentation page via "Download PDF" button
 
-### Performance Optimizations
+#### Performance Optimizations
 **Date:** February 2026  
 **Impact:** High - Improves perceived responsiveness
 
@@ -367,7 +493,7 @@ src/
 - Optimized framer-motion configurations across Dashboard, Incidents, Alerts, and Team pages
 - Improved initial render performance
 
-### Log Ingestion Module
+#### Log Ingestion Module
 **Date:** February 2026  
 **Impact:** High - Allows custom data onboarding and dynamic threat analysis.
 
@@ -381,7 +507,7 @@ src/
 - Services/Utils: `/src/services/LogIngestionService.ts`, `/src/utils/logParser.ts`
 - Uses robust custom type schemas and pure INSERT-only functions to ensure side-effect-free integration.
 
-## 10. Future Roadmap
+## 12. Future Roadmap
 
 **Planned Features:**
 - Advanced NLP capabilities for IRIS chatbot
@@ -401,7 +527,6 @@ src/
 
 ---
 
-**Project Version:** 2.4.0  
+**Project Version:** 2.5.0  
 **Last Updated:** March 2026  
 **Maintained by:** Varun Agarwal
-
